@@ -15,7 +15,19 @@ ENTRY = (
 )
 
 
+# RULES.txt gate: /output/entry.txt must be UTF-8 text of 1-120
+# characters. Enforce it here so an over-long pick fails loudly
+# locally instead of failing the server-side length check.
+def _validate_entry(text: str) -> None:
+    if not 1 <= len(text) <= 120:
+        raise ValueError(
+            f"ENTRY must be 1-120 characters (RULES.txt gate), "
+            f"got {len(text)} characters: {text!r}"
+        )
+
+
 def main() -> None:
+    _validate_entry(ENTRY)
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
